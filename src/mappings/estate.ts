@@ -7,7 +7,8 @@ import {
   Approval,
   UpdateManager,
   UpdateOperator as UpdateOperatorEvent,
-  ApprovalForAll
+  ApprovalForAll,
+  Update
 } from '../types/EstateRegistry/EstateRegistry'
 import { Estate, EstateHistory, Parcel, Authorization } from '../types/schema'
 import {
@@ -20,16 +21,25 @@ import { NFTType } from '../utils/nft'
 import { EventType } from '../utils/event'
 import { decodeTokenId } from '../utils/parcel'
 import { getEstateHistoryId } from '../utils/estate'
+import { buildData, DataType } from '../utils/data'
 import * as addresses from '../utils/addresses'
 
 export function handleCreateEstate(event: CreateEstate): void {
-  let estateId = event.params._estateId.toString()
-  let estate = new Estate(estateId)
+  let id = event.params._estateId.toString()
+  let data = event.params._data.toString()
+
+  let estate = new Estate(id)
 
   estate.owner = event.params._owner
   estate.parcels = []
   estate.size = 0
   estate.createdAt = event.block.timestamp
+
+  let estateData = buildData(id, data, DataType.ESTATE)
+  if (estateData != null) {
+    estate.data = id
+    estateData.save()
+  }
 
   estate.save()
 }
@@ -112,8 +122,8 @@ export function handleRemoveLand(event: RemoveLand): void {
 }
 
 export function handleTransfer(event: Transfer): void {
-  let estateId = event.params._tokenId.toString()
-  let estate = new Estate(estateId)
+  let id = event.params._tokenId.toString()
+  let estate = new Estate(id)
 
   estate.owner = event.params._to
   estate.operator = null
@@ -201,4 +211,19 @@ export function handleApprovalForAll(event: ApprovalForAll): void {
   authorization.operator = event.params._operator
   authorization.isApproved = event.params._approved
   authorization.save()
+}
+
+export function handleUpdate(event: Update): void {
+  let id = event.params._assetId.toString()
+  let data = event.params._data.toString()
+
+  let estate = new Estate(id)
+
+  let estateData = buildData(id, data, DataType.ESTATE)
+  if (estateData != null) {
+    estate.data = id
+    estateData.save()
+  }
+
+  estate.save()
 }

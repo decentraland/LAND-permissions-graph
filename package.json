@@ -6,8 +6,8 @@
     "create-local": "graph create nicosantangelo/watchtower --node http://127.0.0.1:8020",
     "codegen": "graph codegen --debug --output-dir src/types/",
     "build": "graph build --debug",
-    "deploy": "graph deploy nicosantangelo/watchtower --debug --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
-    "deploy-local": "graph deploy nicosantangelo/watchtower --debug --ipfs http://localhost:5001 --node http://127.0.0.1:8020"
+    "deploy": "graph deploy nicosantangelo/watchtower-ropsten --debug --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
+    "deploy-local": "graph deploy nicosantangelo/watchtower-ropsten --debug --ipfs http://localhost:5001 --node http://127.0.0.1:8020"
   },
   "devDependencies": {},
   "dependencies": {
