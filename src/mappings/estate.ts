@@ -21,6 +21,7 @@ import { NFTType } from '../utils/nft'
 import { EventType } from '../utils/event'
 import { decodeTokenId } from '../utils/parcel'
 import { getEstateHistoryId } from '../utils/estate'
+import { createWallet } from '../utils/wallet'
 import { buildData, DataType } from '../utils/data'
 import * as addresses from '../utils/addresses'
 
@@ -30,7 +31,7 @@ export function handleCreateEstate(event: CreateEstate): void {
 
   let estate = new Estate(id)
 
-  estate.owner = event.params._owner
+  estate.owner = event.params._owner.toHex()
   estate.parcels = []
   estate.size = 0
   estate.createdAt = event.block.timestamp
@@ -42,6 +43,8 @@ export function handleCreateEstate(event: CreateEstate): void {
   }
 
   estate.save()
+
+  createWallet(event.params._owner)
 }
 
 export function handleAddLand(event: AddLand): void {
@@ -69,7 +72,7 @@ export function handleAddLand(event: AddLand): void {
     parcel.tokenId = event.params._landId
   }
 
-  parcel.owner = Bytes.fromHexString(addresses.EstateRegistry) as Bytes
+  parcel.owner = addresses.EstateRegistry
   parcel.estate = estateId
   parcel.save()
 
@@ -108,7 +111,7 @@ export function handleRemoveLand(event: RemoveLand): void {
     parcel.tokenId = event.params._landId
   }
 
-  parcel.owner = event.params._destinatary
+  parcel.owner = event.params._destinatary.toHex()
   parcel.estate = null
   parcel.save()
 
@@ -125,7 +128,7 @@ export function handleTransfer(event: Transfer): void {
   let id = event.params._tokenId.toString()
   let estate = new Estate(id)
 
-  estate.owner = event.params._to
+  estate.owner = event.params._to.toHex()
   estate.operator = null
   estate.updateOperator = null
   estate.updatedAt = event.block.timestamp
@@ -158,13 +161,15 @@ export function handleTransfer(event: Transfer): void {
     null,
     event.params._tokenId
   )
+
+  createWallet(event.params._to)
 }
 
 export function handleApproval(event: Approval): void {
   let id = event.params._tokenId.toString()
   let estate = new Estate(id)
 
-  estate.owner = event.params._owner
+  estate.owner = event.params._owner.toHex()
   estate.operator = event.params._approved
   estate.updatedAt = event.block.timestamp
   estate.save()
@@ -199,18 +204,22 @@ export function handleUpdateOperator(event: UpdateOperatorEvent): void {
 
 export function handleUpdateManager(event: UpdateManager): void {
   let authorization = buildAuthorization(event, AuthorizationType.MANAGER)
-  authorization.owner = event.params._owner
+  authorization.owner = event.params._owner.toHex()
   authorization.operator = event.params._operator
   authorization.isApproved = event.params._approved
   authorization.save()
+
+  createWallet(event.params._owner)
 }
 
 export function handleApprovalForAll(event: ApprovalForAll): void {
   let authorization = buildAuthorization(event, AuthorizationType.OPERATOR)
-  authorization.owner = event.params._owner
+  authorization.owner = event.params._owner.toHex()
   authorization.operator = event.params._operator
   authorization.isApproved = event.params._approved
   authorization.save()
+
+  createWallet(event.params._owner)
 }
 
 export function handleUpdate(event: Update): void {
