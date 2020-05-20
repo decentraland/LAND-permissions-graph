@@ -16,6 +16,7 @@ import {
 import { NFTType } from '../utils/nft'
 import { EventType } from '../utils/event'
 import { decodeTokenId } from '../utils/parcel'
+import { createWallet } from '../utils/wallet'
 import { buildData, DataType } from '../utils/data'
 
 export function handleTransfer(event: Transfer): void {
@@ -26,7 +27,7 @@ export function handleTransfer(event: Transfer): void {
   parcel.x = coordinates[0]
   parcel.y = coordinates[1]
   parcel.tokenId = event.params.assetId
-  parcel.owner = event.params.to
+  parcel.owner = event.params.to.toHex()
   parcel.operator = null
   parcel.updateOperator = null
   parcel.updatedAt = event.block.timestamp
@@ -58,6 +59,8 @@ export function handleTransfer(event: Transfer): void {
     null,
     event.params.assetId
   )
+
+  createWallet(event.params.to)
 }
 
 export function handleApproval(event: Approval): void {
@@ -68,7 +71,7 @@ export function handleApproval(event: Approval): void {
   parcel.x = coordinates[0]
   parcel.y = coordinates[1]
   parcel.tokenId = event.params.assetId
-  parcel.owner = event.params.owner
+  parcel.owner = event.params.owner.toHex()
   parcel.operator = event.params.operator
   parcel.updatedAt = event.block.timestamp
   parcel.save()
@@ -107,18 +110,22 @@ export function handleUpdateOperator(event: UpdateOperatorEvent): void {
 
 export function handleUpdateManager(event: UpdateManager): void {
   let authorization = buildAuthorization(event, AuthorizationType.MANAGER)
-  authorization.owner = event.params._owner
+  authorization.owner = event.params._owner.toHex()
   authorization.operator = event.params._operator
   authorization.isApproved = event.params._approved
   authorization.save()
+
+  createWallet(event.params._owner)
 }
 
 export function handleApprovalForAll(event: ApprovalForAll): void {
   let authorization = buildAuthorization(event, AuthorizationType.OPERATOR)
-  authorization.owner = event.params.holder
+  authorization.owner = event.params.holder.toHex()
   authorization.operator = event.params.operator
   authorization.isApproved = event.params.authorized
   authorization.save()
+
+  createWallet(event.params.holder)
 }
 
 export function handleUpdate(event: Update): void {
