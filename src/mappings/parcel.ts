@@ -3,7 +3,8 @@ import {
   Approval,
   UpdateManager,
   UpdateOperator as UpdateOperatorEvent,
-  ApprovalForAll
+  ApprovalForAll,
+  Update
 } from '../types/LANDRegistry/LANDRegistry'
 import { Parcel, Authorization } from '../types/schema'
 import {
@@ -15,6 +16,7 @@ import {
 import { NFTType } from '../utils/nft'
 import { EventType } from '../utils/event'
 import { decodeTokenId } from '../utils/parcel'
+import { buildData, DataType } from '../utils/data'
 
 export function handleTransfer(event: Transfer): void {
   let coordinates = decodeTokenId(event.params.assetId)
@@ -117,4 +119,19 @@ export function handleApprovalForAll(event: ApprovalForAll): void {
   authorization.operator = event.params.operator
   authorization.isApproved = event.params.authorized
   authorization.save()
+}
+
+export function handleUpdate(event: Update): void {
+  let id = event.params.assetId.toHex()
+  let data = event.params.data.toString()
+
+  let parcel = new Parcel(id)
+
+  let parcelData = buildData(id, data, DataType.PARCEL)
+  if (parcelData != null) {
+    parcel.data = id
+    parcelData.save()
+  }
+
+  parcel.save()
 }

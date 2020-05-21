@@ -16,6 +16,8 @@ type Parcel @entity {
   estate: Estate
   estates: [EstateHistory!] @derivedFrom(field: "parcel")
 
+  data: Data
+
   updatedAt: BigInt
 }
 
@@ -41,6 +43,8 @@ type Estate @entity {
 
   size: Int
   parcels: [Parcel!]
+
+  data: Data
 
   createdAt: BigInt
   updatedAt: BigInt
@@ -85,4 +89,14 @@ type UpdateOperator @entity {
   eventName: String!
   timestamp: BigInt!
   createdAt: BigInt!
+}
+
+type Data @entity {
+  id: ID!
+  parcel: Parcel
+  estate: Estate
+  version: String!
+  name: String
+  description: String
+  ipns: String
 }
