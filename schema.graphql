@@ -4,7 +4,7 @@ type Parcel @entity {
   x: BigInt!
   y: BigInt!
 
-  owner: Bytes
+  owner: Wallet
   owners: [Owner!] @derivedFrom(field: "parcel")
 
   operators: [Operator!] @derivedFrom(field: "parcel")
@@ -32,7 +32,7 @@ type EstateHistory @entity {
 type Estate @entity {
   id: ID!
 
-  owner: Bytes!
+  owner: Wallet!
   owners: [Owner!] @derivedFrom(field: "estate")
 
   operators: [Operator!] @derivedFrom(field: "estate")
@@ -54,8 +54,10 @@ type Authorization @entity {
   id: ID!
   type: String!
   tokenAddress: Bytes!
-  owner: Bytes!
+
+  owner: Wallet!
   operator: Bytes!
+
   isApproved: Boolean!
   timestamp: BigInt!
   createdAt: BigInt!
@@ -99,4 +101,11 @@ type Data @entity {
   name: String
   description: String
   ipns: String
+}
+
+type Wallet @entity {
+  id: ID! # ETH addr
+  address: Bytes!
+  parcels: [Parcel!] @derivedFrom(field: "owner")
+  estates: [Estate!] @derivedFrom(field: "owner")
 }
