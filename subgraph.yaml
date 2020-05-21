@@ -35,6 +35,8 @@ dataSources:
           handler: handleUpdateOperator
         - event: ApprovalForAll(indexed address,indexed address,bool)
           handler: handleApprovalForAll
+        - event: Update(indexed uint256,indexed address,indexed address,string)
+          handler: handleUpdate
       file: ./src/mappings/parcel.ts
 
   - kind: ethereum/contract
@@ -70,4 +72,6 @@ dataSources:
           handler: handleUpdateOperator
         - event: ApprovalForAll(indexed address,indexed address,bool)
           handler: handleApprovalForAll
+        - event: Update(indexed uint256,indexed address,indexed address,string)
+          handler: handleUpdate
       file: ./src/mappings/estate.ts
