@@ -188,7 +188,7 @@ export function handleUpdateOperator(event: UpdateOperatorEvent): void {
   let id = event.params._estateId.toString()
   let estate = new Estate(id)
 
-  estate.operator = event.params._operator
+  estate.updateOperator = event.params._operator
   estate.updatedAt = event.block.timestamp
   estate.save()
 
