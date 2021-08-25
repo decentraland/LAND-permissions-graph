@@ -105,7 +105,7 @@ Example query: Get the historical Estate data for the parcel (49,5)
 
 Result
 
-```
+```json
 {
   "data": {
     "estateHistories": [
@@ -113,19 +113,19 @@ Result
         "id": "10005165-60-AddLand-3673",
         "_prevEstateId": "3673",
         "createdAt": "1588667501",
-        "estateId": "3673",
+        "estateId": "3673"
       },
       {
         "id": "10004651-60-RemoveLand-1053",
         "_prevEstateId": null,
         "createdAt": "1588660675",
-        "estateId": null,
+        "estateId": null
       },
       {
         "id": "6819309-55-AddLand-1053",
         "_prevEstateId": "1053",
         "createdAt": "1543851993",
-        "estateId": "1053",
+        "estateId": "1053"
       }
     ]
   }
@@ -159,7 +159,7 @@ Example query: Get all the authorizations an address gave
 
 Result
 
-```
+```json
 {
   "data": {
     "authorizations": [
@@ -209,7 +209,7 @@ Example query: Get the historical owners for the parcel (-69,8)
 
 Result
 
-```
+```json
 {
   "data": {
     "owners": [
@@ -314,7 +314,7 @@ Example query: Get the operator and update operator historical data for the (89,
 
 Result
 
-```
+```json
 {
   "data": {
     "operators": [
@@ -425,7 +425,7 @@ First we check the parcel itself, for the current Land-level permissions and to 
 
 Result:
 
-```
+```json
 {
   "data": {
     "parcels": [
@@ -474,7 +474,7 @@ Next we have to check address level permissions, to do that, we have to check if
 
 Result:
 
-```
+```json
 {
   "data": {
     "authorizations": [
