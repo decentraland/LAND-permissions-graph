@@ -4,6 +4,13 @@ A [graph](https://thegraph.com/legacy-explorer/subgraph/decentraland/land-manage
 
 For clarity, the rest of the file uses `Parcel` and `LAND` interchangeably, `Land`, refers to both `LAND` and `Estate`
 
+## Index
+
+- [Permission Types](#permission-types)
+- [Entities](#entities)
+- [Example Query](#example-query)
+- [Run](#run)
+
 ## Permission types
 
 There are two types of permissions, address-level and Land-level. Address level permissions are given by an address to another address, and grant you access to all of the Land of the recipient. Land level permissions grant you access to a particular Land.
@@ -24,10 +31,10 @@ You can check the graph entities in the [schema.graphql](https://github.com/dece
 **Permissions related**
 
 - [EstateHistory](#EstateHistory)
-- [Authorization](#Authorization)
-- [Owner](#Owner)
-- [Operator](#Operator-and-UpdateOperator)
-- [UpdateOperator](#Operator-and-UpdateOperator)
+- [Authorization](#Authorization): Address level
+- [Owner](#Owner): Land level
+- [Operator](#Operator-and-UpdateOperator): Land level
+- [UpdateOperator](#Operator-and-UpdateOperator): Land level
 
 ### Parcel and Estate
 
@@ -129,7 +136,7 @@ If you check those results, you can see that the parcel (`49,5`) was first added
 
 ### Authorization
 
-Address-level permissions for Land, composed of `UpdateManager`s and `ApprovalForAll`s. The data is timestamped to allow for historical queries, the last record by `createdAt` is the most recent.
+Address-level permissions for Land, composed of [`UpdateManager`s](https://github.com/decentraland/proposals/blob/master/dsp/dsp-0010/0010.md#updatemanager) and [`ApprovalForAll`s](https://github.com/decentraland/proposals/blob/master/dsp/dsp-0010/0010.md#approvedforall). The data is timestamped to allow for historical queries, the last record by `createdAt` is the most recent.
 The id of each Entity is composed of `{blockNumber}-{logIndex}-{type}` where type is Operator or Manager. The type is what let's you know which type of Authorization was given.
 
 The Authorization type is not tied to a particular LAND or Estate, that is why it has the `tokenAddress` property, it'll refer to the EstateRegistry or LANDRegistry respectively, or maybe a new asset in the future. The `operator` prop is the address that received the Authorization
@@ -179,7 +186,7 @@ This can be read as: The address `0x1fc5616bb5cc9774c23b734a1a4e5ec82ebdc89a` ga
 
 ### Owner
 
-Denotes Ownership of each Land. The data is timestamped to allow for historical queries, the last record by `createdAt` is the most recent.
+Land-level permission, denotes [Ownership](https://github.com/decentraland/proposals/blob/master/dsp/dsp-0010/0010.md#owner) of each Land. The data is timestamped to allow for historical queries, the last record by `createdAt` is the most recent.
 The id of each Entity is composed of `{blockNumber}-{logIndex}-{type}` where type is Owner. The prop `eventName` is here for completeness sake, as it's always a `Transfer`.
 
 Example query: Get the historical owners for the parcel (-69,8)
@@ -273,7 +280,7 @@ to the query
 
 ### Operator and UpdateOperator
 
-These entities give you a clear idea of which address gave which permission, and to which Land. The data is timestamped to allow for historical queries, the last record by `createdAt` is the most recent.
+Land-level permissions, composed of [Operator](https://github.com/decentraland/proposals/blob/master/dsp/dsp-0010/0010.md#operator) and [UpdateOperator](https://github.com/decentraland/proposals/blob/master/dsp/dsp-0010/0010.md#updateoperator). These entities give you a clear idea of which address gave which permission, and to which Land. The data is timestamped to allow for historical queries, the last record by `createdAt` is the most recent.
 The id of each Entity is composed of `{blockNumber}-{logIndex}-{type}` where type is Operator or UpdateOperator. You can check which type of event triggered the permission by getting the `eventName` prop, which could be:
 
 - Approval: Grant/revoke operator permissions
@@ -391,6 +398,106 @@ Result
 ```
 
 You can see in the results how the address is null on Transfers, as the Land-level persmissions are cleared
+
+## Example Query
+
+Get all permissions an address (`0x4fee7b061c97c9c496b01dbce9cdb10c02f0a0be`) has for a particular Land (`20,12`):
+
+First we check the parcel itself, for the current Land-level permissions and to check if it's in a Estate:
+
+```graphql
+{
+  parcels(where: { x: 20, y: 12 }) {
+    id
+    x
+    y
+    owner {
+      id
+    }
+    operator
+    updateOperator
+    estate {
+      id
+    }
+  }
+}
+```
+
+Result:
+
+```
+{
+  "data": {
+    "parcels": [
+      {
+        "id": "0x140000000000000000000000000000000c",
+        "estate": null,
+        "operator": "0x4fee7b061c97c9c496b01dbce9cdb10c02f0a0be",
+        "owner": {
+          "id": "0x7a536388147c04c5407ca6a7117141faa611bdde"
+        },
+        "updateOperator": null,
+        "x": "20",
+        "y": "12"
+      }
+    ]
+  }
+}
+```
+
+Here we can tell that:
+
+- The Parcel does not belong to a Estate
+- Our address is the operator of the Parcel
+
+Next we have to check address level permissions, to do that, we have to check if the owner of the parcel, `0x7a536388147c04c5407ca6a7117141faa611bdde`, has given an [Authorization](#authorization) to it:
+
+```graphql
+{
+  authorizations(
+    where: {
+      owner: "0x7a536388147c04c5407ca6a7117141faa611bdde"
+      operator: "0x4fee7b061c97c9c496b01dbce9cdb10c02f0a0be"
+      isApproved: true
+    }
+    orderBy: createdAt
+    orderDirection: desc
+  ) {
+    id
+    type
+    tokenAddress
+    operator
+    isApproved
+  }
+}
+```
+
+Result:
+
+```
+{
+  "data": {
+    "authorizations": [
+      {
+        "id": "12029389-231-Operator",
+        "isApproved": true,
+        "operator": "0x4fee7b061c97c9c496b01dbce9cdb10c02f0a0be",
+        "tokenAddress": "0xf87e31492faf9a91b02ee0deaad50d51d56d5d4d",
+        "type": "Operator"
+      }
+    ]
+  }
+}
+```
+
+We can see here that our operator has an Operator ([`ApprovalForAll`s](https://github.com/decentraland/proposals/blob/master/dsp/dsp-0010/0010.md#approvedforall)) permission for all LANDs (`0xf87e31492faf9a91b02ee0deaad50d51d56d5d4d`) our owner has.
+
+**In conclusion**:
+
+The address `0x4fee7b061c97c9c496b01dbce9cdb10c02f0a0be` is
+
+- The operator of `(20,12)`
+- Has all [`ApprovalForAll`s](https://github.com/decentraland/proposals/blob/master/dsp/dsp-0010/0010.md#approvedforall) permissions over `0x7a536388147c04c5407ca6a7117141faa611bdde` LAND. As long as `0x7a536388147c04c5407ca6a7117141faa611bdde` has `(20,12)`, she will have access.
 
 ## Run
 
