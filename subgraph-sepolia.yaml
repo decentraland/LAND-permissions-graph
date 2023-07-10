@@ -1,0 +1,77 @@
+specVersion: 0.0.2
+description: Decentraland's Watchtower
+repository: https://github.com/nicosantangelo/watchtower
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: LANDRegistry
+    network: sepolia
+    source:
+      address: '0x42f4ba48791e2de32f5fbf553441c2672864bb33'
+      abi: LANDRegistry
+      startBlock: 3831219
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - Parcel
+      abis:
+        - name: LANDRegistry
+          file: ./abis/LANDRegistry.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+        - event: Transfer(indexed address,indexed address,indexed uint256,address,bytes)
+          handler: handleTransfer
+        - event: Transfer(indexed address,indexed address,indexed uint256,address,bytes,bytes)
+          handler: handleTransfer
+        - event: Approval(indexed address,indexed address,indexed uint256)
+          handler: handleApproval
+        - event: UpdateManager(indexed address,indexed address,indexed address,bool)
+          handler: handleUpdateManager
+        - event: UpdateOperator(indexed uint256,indexed address)
+          handler: handleUpdateOperator
+        - event: ApprovalForAll(indexed address,indexed address,bool)
+          handler: handleApprovalForAll
+        - event: Update(indexed uint256,indexed address,indexed address,string)
+          handler: handleUpdate
+      file: ./src/mappings/parcel.ts
+
+  - kind: ethereum/contract
+    name: EstateRegistry
+    network: sepolia
+    source:
+      address: '0x369a7fbe718c870c79f99fb423882e8dd8b20486'
+      abi: EstateRegistry
+      startBlock: 3831232
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - Estate
+      abis:
+        - name: EstateRegistry
+          file: ./abis/EstateRegistry.json
+      eventHandlers:
+        - event: CreateEstate(indexed address,indexed uint256,string)
+          handler: handleCreateEstate
+        - event: AddLand(indexed uint256,indexed uint256)
+          handler: handleAddLand
+        - event: RemoveLand(indexed uint256,indexed uint256,indexed address)
+          handler: handleRemoveLand
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+        - event: Approval(indexed address,indexed address,indexed uint256)
+          handler: handleApproval
+        - event: UpdateManager(indexed address,indexed address,indexed address,bool)
+          handler: handleUpdateManager
+        - event: UpdateOperator(indexed uint256,indexed address)
+          handler: handleUpdateOperator
+        - event: ApprovalForAll(indexed address,indexed address,bool)
+          handler: handleApprovalForAll
+        - event: Update(indexed uint256,indexed address,indexed address,string)
+          handler: handleUpdate
+      file: ./src/mappings/estate.ts
