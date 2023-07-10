@@ -1,17 +1,13 @@
 import {
-  EthereumEvent,
+  ethereum,
   Entity,
   Value,
   Bytes,
   BigInt,
-  store
+  store,
 } from '@graphprotocol/graph-ts'
 import { NFTType } from '../utils/nft'
 import { Authorization } from '../types/schema'
-import {
-  ApprovalForAll,
-  UpdateManager
-} from '../types/LANDRegistry/LANDRegistry'
 
 export class AuthorizationType {
   static OWNER: string = 'Owner'
@@ -21,7 +17,7 @@ export class AuthorizationType {
 }
 
 export function createAuthorizationId(
-  event: EthereumEvent,
+  event: ethereum.Event,
   type: string
 ): string {
   return (
@@ -30,7 +26,7 @@ export function createAuthorizationId(
 }
 
 export function buildAuthorization(
-  event: EthereumEvent,
+  event: ethereum.Event,
   type: string
 ): Authorization {
   let id = createAuthorizationId(event, type)
@@ -48,7 +44,7 @@ export function createOwnership(
   authorizationType: string,
   nftType: string,
   eventName: string,
-  event: EthereumEvent,
+  event: ethereum.Event,
   address: Bytes | null,
   id: BigInt
 ): void {
@@ -57,10 +53,10 @@ export function createOwnership(
 
   entity.set('id', Value.fromString(authorizationId))
 
-  if (address == null) {
+  if (address === null) {
     entity.unset('address')
   } else {
-    entity.set('address', Value.fromBytes(address!))
+    entity.set('address', Value.fromBytes(address))
   }
 
   entity.set('eventName', Value.fromString(eventName))
@@ -80,7 +76,7 @@ function setNFT(nftType: string, entity: Entity, id: BigInt): void {
   }
 }
 
-function buildTimestamp(event: EthereumEvent): BigInt {
+function buildTimestamp(event: ethereum.Event): BigInt {
   return event.block.timestamp
     .times(BigInt.fromI32(1000000))
     .plus(event.logIndex)
