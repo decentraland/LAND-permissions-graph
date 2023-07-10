@@ -22,7 +22,7 @@ import { decodeTokenId } from '../utils/parcel'
 import { getEstateHistoryId } from '../utils/estate'
 import { createWallet } from '../utils/wallet'
 import { buildData, DataType } from '../utils/data'
-import * as addresses from '../utils/addresses'
+import { getEstateAddress } from '../utils/addresses'
 
 export function handleCreateEstate(event: CreateEstate): void {
   let id = event.params._estateId.toString()
@@ -51,14 +51,14 @@ export function handleAddLand(event: AddLand): void {
   let parcelId = event.params._landId.toHex()
   let estate = Estate.load(estateId)
 
-  if (estate === null) {
+  if (estate == null) {
     log.error('Estate not found {}', [estateId])
     return
   }
 
   let parcels = estate.parcels
 
-  if (parcels === null) {
+  if (parcels == null) {
     parcels = []
   }
 
@@ -76,7 +76,7 @@ export function handleAddLand(event: AddLand): void {
     parcel.y = coordinates[1]
     parcel.tokenId = event.params._landId
   }
-  parcel.owner = addresses.EstateRegistry
+  parcel.owner = getEstateAddress()
   parcel.estate = estateId
   parcel.save()
   let estateHistory = new EstateHistory(
@@ -94,14 +94,14 @@ export function handleRemoveLand(event: RemoveLand): void {
   let parcelId = event.params._landId.toHex()
   let estate = Estate.load(estateId)
 
-  if (estate === null) {
+  if (estate == null) {
     log.error('Estate not found {}', [estateId])
     return
   }
 
   let parcels = estate.parcels
 
-  if (parcels === null) {
+  if (parcels == null) {
     parcels = []
   }
 
