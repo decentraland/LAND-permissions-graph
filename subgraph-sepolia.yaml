@@ -13,7 +13,7 @@ dataSources:
       startBlock: 3831219
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.3
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
         - Parcel
@@ -48,7 +48,7 @@ dataSources:
       startBlock: 3831232
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.3
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
         - Estate
