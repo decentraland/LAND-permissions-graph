@@ -185,47 +185,47 @@ export function handleApproval(event: Approval): void {
 }
 
 export function handleUpdateOperator(event: UpdateOperatorEvent): void {
-  // let id = event.params._estateId.toString()
-  // let estate = new Estate(id)
-  // estate.updateOperator = event.params._operator
-  // estate.updatedAt = event.block.timestamp
-  // estate.save()
-  // createOwnership(
-  //   AuthorizationType.UPDATE_OPERATOR,
-  //   NFTType.ESTATE,
-  //   EventType.UPDATE_OPERATOR,
-  //   event,
-  //   event.params._operator,
-  //   event.params._estateId
-  // )
+  let id = event.params._estateId.toString()
+  let estate = new Estate(id)
+  estate.updateOperator = event.params._operator
+  estate.updatedAt = event.block.timestamp
+  estate.save()
+  createOwnership(
+    AuthorizationType.UPDATE_OPERATOR,
+    NFTType.ESTATE,
+    EventType.UPDATE_OPERATOR,
+    event,
+    event.params._operator,
+    event.params._estateId
+  )
 }
 
 export function handleUpdateManager(event: UpdateManager): void {
-  // let authorization = buildAuthorization(event, AuthorizationType.MANAGER)
-  // authorization.owner = event.params._owner.toHex()
-  // authorization.operator = event.params._operator
-  // authorization.isApproved = event.params._approved
-  // authorization.save()
-  // createWallet(event.params._owner)
+  let authorization = buildAuthorization(event, AuthorizationType.MANAGER)
+  authorization.owner = event.params._owner.toHex()
+  authorization.operator = event.params._operator
+  authorization.isApproved = event.params._approved
+  authorization.save()
+  createWallet(event.params._owner)
 }
 
 export function handleApprovalForAll(event: ApprovalForAll): void {
-  // let authorization = buildAuthorization(event, AuthorizationType.OPERATOR)
-  // authorization.owner = event.params._owner.toHex()
-  // authorization.operator = event.params._operator
-  // authorization.isApproved = event.params._approved
-  // authorization.save()
-  // createWallet(event.params._owner)
+  let authorization = buildAuthorization(event, AuthorizationType.OPERATOR)
+  authorization.owner = event.params._owner.toHex()
+  authorization.operator = event.params._operator
+  authorization.isApproved = event.params._approved
+  authorization.save()
+  createWallet(event.params._owner)
 }
 
 export function handleUpdate(event: Update): void {
-  // let id = event.params._assetId.toString()
-  // let data = event.params._data.toString()
-  // let estate = new Estate(id)
-  // let estateData = buildData(id, data, DataType.ESTATE)
-  // if (estateData != null) {
-  //   estate.data = id
-  //   estateData.save()
-  // }
-  // estate.save()
+  let id = event.params._assetId.toString()
+  let data = event.params._data.toString()
+  let estate = new Estate(id)
+  let estateData = buildData(id, data, DataType.ESTATE)
+  if (estateData != null) {
+    estate.data = id
+    estateData.save()
+  }
+  estate.save()
 }
