@@ -8,7 +8,7 @@ For clarity, the rest of the file uses `Parcel` and `LAND` interchangeably, `Lan
 | ------- | --------------- | ------------------------------------------------------------------------------- | ---------------------------------------------- | -------- |
 | Mainnet | Satsuma         | https://subgraph.satsuma-prod.com/decentraland/land-manager/playground          | QmZWZWLQqY7FqsjjTsShheSZDSmj1Q3RLogNSwME3yep4Q | -        |
 | Mainnet | Hosted Services | https://thegraph.com/hosted-service/subgraph/decentraland/land-manager          | QmZWZWLQqY7FqsjjTsShheSZDSmj1Q3RLogNSwME3yep4Q | -        |
-| Sepolia | Graph Studio    | https://api.studio.thegraph.com/query/49472/land-manager-sepolia/version/latest | QmaBthprjieHzPu4tcWX5ph6BUZKew3cPjenTT98to8cao | -        |
+| Sepolia | Graph Studio    | https://api.studio.thegraph.com/query/49472/land-manager-sepolia/version/latest | QmfKfXNfmLrj3DprHtqKmdmCMa7BKqdki7rMiai6byWTQN | -        |
 | Goerli  | Hosted Services | https://thegraph.com/hosted-service/subgraph/decentraland/land-manager-goerli   | QmQwkZwFANnwH3bpKdrTD6xUnxs3vgjnD1CX6CKVX49aix | -        |
 
 Using [The Graph](https://thegraph.com) and [Satsuma](https://www.satsuma.xyz/)
