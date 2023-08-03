@@ -1,7 +1,7 @@
-import { EthereumEvent } from '@graphprotocol/graph-ts'
+import { ethereum } from '@graphprotocol/graph-ts'
 
 export function getEstateHistoryId(
-  event: EthereumEvent,
+  event: ethereum.Event,
   type: string,
   id: string
 ): string {

@@ -1,4 +1,4 @@
-import { Bytes } from '@graphprotocol/graph-ts'
+import { log } from '@graphprotocol/graph-ts'
 import {
   CreateEstate,
   AddLand,
@@ -8,14 +8,13 @@ import {
   UpdateManager,
   UpdateOperator as UpdateOperatorEvent,
   ApprovalForAll,
-  Update
+  Update,
 } from '../types/EstateRegistry/EstateRegistry'
-import { Estate, EstateHistory, Parcel, Authorization } from '../types/schema'
+import { Estate, EstateHistory, Parcel } from '../types/schema'
 import {
   AuthorizationType,
-  createAuthorizationId,
   buildAuthorization,
-  createOwnership
+  createOwnership,
 } from '../utils/authorization'
 import { NFTType } from '../utils/nft'
 import { EventType } from '../utils/event'
@@ -23,7 +22,7 @@ import { decodeTokenId } from '../utils/parcel'
 import { getEstateHistoryId } from '../utils/estate'
 import { createWallet } from '../utils/wallet'
 import { buildData, DataType } from '../utils/data'
-import * as addresses from '../utils/addresses'
+import { getEstateAddress } from '../utils/addresses'
 
 export function handleCreateEstate(event: CreateEstate): void {
   let id = event.params._estateId.toString()
@@ -52,30 +51,34 @@ export function handleAddLand(event: AddLand): void {
   let parcelId = event.params._landId.toHex()
   let estate = Estate.load(estateId)
 
-  let parcels = estate.parcels
-  parcels.push(parcelId)
+  if (estate == null) {
+    log.error('Estate not found {}', [estateId])
+    return
+  }
 
+  let parcels = estate.parcels
+
+  if (parcels == null) {
+    parcels = []
+  }
+
+  parcels.push(parcelId)
   estate.parcels = parcels
   estate.size = parcels.length
   estate.save()
-
   let parcel = Parcel.load(parcelId)
-
   // Would expect that this isn't needed, but it is here for safety, since failing at block 6,000,000 slows down iterative testing
   // Because if land parcel doesn't exist, we get a crashed node
   if (parcel == null) {
     let coordinates = decodeTokenId(event.params._landId)
-
     parcel = new Parcel(parcelId)
     parcel.x = coordinates[0]
     parcel.y = coordinates[1]
     parcel.tokenId = event.params._landId
   }
-
-  parcel.owner = addresses.EstateRegistry
+  parcel.owner = getEstateAddress()
   parcel.estate = estateId
   parcel.save()
-
   let estateHistory = new EstateHistory(
     getEstateHistoryId(event, 'AddLand', estateId)
   )
@@ -91,30 +94,35 @@ export function handleRemoveLand(event: RemoveLand): void {
   let parcelId = event.params._landId.toHex()
   let estate = Estate.load(estateId)
 
+  if (estate == null) {
+    log.error('Estate not found {}', [estateId])
+    return
+  }
+
   let parcels = estate.parcels
+
+  if (parcels == null) {
+    parcels = []
+  }
+
   let index = parcels.indexOf(parcelId)
   parcels.splice(index, 1)
-
   estate.parcels = parcels
   estate.size = parcels.length
   estate.save()
-
   let parcel = Parcel.load(parcelId)
   // Would expect that this isn't needed, but it is here for safety, since failing at block 6,000,000 slows down iterative testing
   // Because if land parcel doesn't exist, we get a crashed node
   if (parcel == null) {
     let coordinates = decodeTokenId(event.params._landId)
-
     parcel = new Parcel(parcelId)
     parcel.x = coordinates[0]
     parcel.y = coordinates[1]
     parcel.tokenId = event.params._landId
   }
-
   parcel.owner = event.params._destinatary.toHex()
   parcel.estate = null
   parcel.save()
-
   let estateHistory = new EstateHistory(
     getEstateHistoryId(event, 'RemoveLand', estateId)
   )
@@ -127,14 +135,11 @@ export function handleRemoveLand(event: RemoveLand): void {
 export function handleTransfer(event: Transfer): void {
   let id = event.params._tokenId.toString()
   let estate = new Estate(id)
-
   estate.owner = event.params._to.toHex()
   estate.operator = null
   estate.updateOperator = null
   estate.updatedAt = event.block.timestamp
-
   estate.save()
-
   createOwnership(
     AuthorizationType.OWNER,
     NFTType.ESTATE,
@@ -143,7 +148,6 @@ export function handleTransfer(event: Transfer): void {
     event.params._to,
     event.params._tokenId
   )
-
   createOwnership(
     AuthorizationType.OPERATOR,
     NFTType.ESTATE,
@@ -152,7 +156,6 @@ export function handleTransfer(event: Transfer): void {
     null,
     event.params._tokenId
   )
-
   createOwnership(
     AuthorizationType.UPDATE_OPERATOR,
     NFTType.ESTATE,
@@ -161,19 +164,16 @@ export function handleTransfer(event: Transfer): void {
     null,
     event.params._tokenId
   )
-
   createWallet(event.params._to)
 }
 
 export function handleApproval(event: Approval): void {
   let id = event.params._tokenId.toString()
   let estate = new Estate(id)
-
   estate.owner = event.params._owner.toHex()
   estate.operator = event.params._approved
   estate.updatedAt = event.block.timestamp
   estate.save()
-
   createOwnership(
     AuthorizationType.OPERATOR,
     NFTType.ESTATE,
@@ -187,11 +187,9 @@ export function handleApproval(event: Approval): void {
 export function handleUpdateOperator(event: UpdateOperatorEvent): void {
   let id = event.params._estateId.toString()
   let estate = new Estate(id)
-
   estate.updateOperator = event.params._operator
   estate.updatedAt = event.block.timestamp
   estate.save()
-
   createOwnership(
     AuthorizationType.UPDATE_OPERATOR,
     NFTType.ESTATE,
@@ -208,7 +206,6 @@ export function handleUpdateManager(event: UpdateManager): void {
   authorization.operator = event.params._operator
   authorization.isApproved = event.params._approved
   authorization.save()
-
   createWallet(event.params._owner)
 }
 
@@ -218,21 +215,17 @@ export function handleApprovalForAll(event: ApprovalForAll): void {
   authorization.operator = event.params._operator
   authorization.isApproved = event.params._approved
   authorization.save()
-
   createWallet(event.params._owner)
 }
 
 export function handleUpdate(event: Update): void {
   let id = event.params._assetId.toString()
   let data = event.params._data.toString()
-
   let estate = new Estate(id)
-
   let estateData = buildData(id, data, DataType.ESTATE)
   if (estateData != null) {
     estate.data = id
     estateData.save()
   }
-
   estate.save()
 }

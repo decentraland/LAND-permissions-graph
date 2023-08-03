@@ -4,14 +4,13 @@ import {
   UpdateManager,
   UpdateOperator as UpdateOperatorEvent,
   ApprovalForAll,
-  Update
+  Update,
 } from '../types/LANDRegistry/LANDRegistry'
-import { Parcel, Authorization } from '../types/schema'
+import { Parcel } from '../types/schema'
 import {
   AuthorizationType,
-  createAuthorizationId,
   buildAuthorization,
-  createOwnership
+  createOwnership,
 } from '../utils/authorization'
 import { NFTType } from '../utils/nft'
 import { EventType } from '../utils/event'
@@ -23,7 +22,6 @@ export function handleTransfer(event: Transfer): void {
   let coordinates = decodeTokenId(event.params.assetId)
   let id = event.params.assetId.toHex()
   let parcel = new Parcel(id)
-
   parcel.x = coordinates[0]
   parcel.y = coordinates[1]
   parcel.tokenId = event.params.assetId
@@ -32,7 +30,6 @@ export function handleTransfer(event: Transfer): void {
   parcel.updateOperator = null
   parcel.updatedAt = event.block.timestamp
   parcel.save()
-
   createOwnership(
     AuthorizationType.OWNER,
     NFTType.PARCEL,
@@ -41,7 +38,6 @@ export function handleTransfer(event: Transfer): void {
     event.params.to,
     event.params.assetId
   )
-
   createOwnership(
     AuthorizationType.OPERATOR,
     NFTType.PARCEL,
@@ -50,7 +46,6 @@ export function handleTransfer(event: Transfer): void {
     null,
     event.params.assetId
   )
-
   createOwnership(
     AuthorizationType.UPDATE_OPERATOR,
     NFTType.PARCEL,
@@ -59,7 +54,6 @@ export function handleTransfer(event: Transfer): void {
     null,
     event.params.assetId
   )
-
   createWallet(event.params.to)
 }
 
@@ -67,7 +61,6 @@ export function handleApproval(event: Approval): void {
   let id = event.params.assetId.toHex()
   let coordinates = decodeTokenId(event.params.assetId)
   let parcel = new Parcel(id)
-
   parcel.x = coordinates[0]
   parcel.y = coordinates[1]
   parcel.tokenId = event.params.assetId
@@ -75,7 +68,6 @@ export function handleApproval(event: Approval): void {
   parcel.operator = event.params.operator
   parcel.updatedAt = event.block.timestamp
   parcel.save()
-
   createOwnership(
     AuthorizationType.OPERATOR,
     NFTType.PARCEL,
@@ -90,14 +82,12 @@ export function handleUpdateOperator(event: UpdateOperatorEvent): void {
   let id = event.params.assetId.toHex()
   let coordinates = decodeTokenId(event.params.assetId)
   let parcel = new Parcel(id)
-
   parcel.x = coordinates[0]
   parcel.y = coordinates[1]
   parcel.tokenId = event.params.assetId
   parcel.updateOperator = event.params.operator
   parcel.updatedAt = event.block.timestamp
   parcel.save()
-
   createOwnership(
     AuthorizationType.UPDATE_OPERATOR,
     NFTType.PARCEL,
@@ -114,7 +104,6 @@ export function handleUpdateManager(event: UpdateManager): void {
   authorization.operator = event.params._operator
   authorization.isApproved = event.params._approved
   authorization.save()
-
   createWallet(event.params._owner)
 }
 
@@ -124,21 +113,17 @@ export function handleApprovalForAll(event: ApprovalForAll): void {
   authorization.operator = event.params.operator
   authorization.isApproved = event.params.authorized
   authorization.save()
-
   createWallet(event.params.holder)
 }
 
 export function handleUpdate(event: Update): void {
   let id = event.params.assetId.toHex()
   let data = event.params.data.toString()
-
   let parcel = new Parcel(id)
-
   let parcelData = buildData(id, data, DataType.PARCEL)
   if (parcelData != null) {
     parcel.data = id
     parcelData.save()
   }
-
   parcel.save()
 }
